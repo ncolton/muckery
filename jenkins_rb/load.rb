@@ -2,6 +2,13 @@ require 'rest_client'
 require 'json'
 require 'sparkr'
 require 'term/ansicolor'
+require 'yaml'
+
+def load_config(configuration_file)
+    fd = open configuration_file, 'r'
+    configuration = YAML.load fd.read
+    return configuration
+end
 
 def bucket_resize(data, items_per_bucket)
     buckets = []
@@ -28,6 +35,20 @@ def color_sparkline_by_value(data, yellow, red)
     end
     return sparkline
 end
+
+def build_query_url(config)
+    if config[:ssl]
+        scheme = 'https'
+    else
+        scheme = 'http'
+    end
+
+    "#{scheme}://#{config[:host]}#{config[:base_path]}#{config[:query_path]}?#{config[:query]}"
+end
+
+default_config_file = '.jenkins_load_config'
+configuration = load_config default_config_file
+query_url = build_query_url configuration[:jenkins]
 
 # stat_resource = RestClient::Resource.new query_url, :user => auth[:user], :password => auth[:api_token]
 stat_resource = RestClient::Resource.new query_url
@@ -61,10 +82,3 @@ puts '=' * line_length
 puts '    Queue  |    Hourly : ' + color_sparkline_by_value(data['queue_length']['hourly'], 5, 10)
 puts '    Length | 5 minutes : ' + color_sparkline_by_value(data['queue_length']['5min'], 5, 10)
 puts ''
-
-# puts stats.keys
-# busyExecutors
-# queueLength
-# totalExecutors
-# totalQueueLength
-

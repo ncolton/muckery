@@ -1,0 +1,10 @@
+---
+:auth:
+  :user: username
+  :api_token: token_data
+:jenkins:
+  :ssl: false
+  :host: jenkins.hostname.net
+  :base_path: "/"
+  :query_path: overallLoad/api/json
+  :query: pretty=true&depth=2
