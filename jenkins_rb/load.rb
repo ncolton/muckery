@@ -81,9 +81,13 @@ def parse_json_data(json_data)
     return data
 end
 
-def query_jenkins_for_stats(jenkins_configuration)
+def query_jenkins_for_stats(jenkins_configuration, auth_info)
     query_url = build_query_url jenkins_configuration
-    # stat_resource = RestClient::Resource.new query_url, :user => auth[:user], :password => auth[:api_token]
+
+    plaintext_auth_string = "#{auth_info[:user]}:#{auth_info[:api_token]}"
+    base64_auth_string = Base64.encode64 plaintext_auth_string
+    base64_auth_string.chomp!
+
     stat_resource = RestClient::Resource.new query_url
     stats = JSON.parse(stat_resource.get)
     return stats
@@ -92,6 +96,6 @@ end
 
 default_config_file = '.jenkins_load_config'
 configuration = load_config default_config_file
-stats = query_jenkins_for_stats configuration[:jenkins]
+stats = query_jenkins_for_stats configuration[:jenkins], configuration[:auth]
 data = parse_json_data(stats)
 write_output(data)
