@@ -10,18 +10,20 @@ require 'nokogiri'
 html_file = ARGV[0]
 doc = Nokogiri::HTML(open(html_file))
 
-chat_history_source = doc.search('div#chats div.chatBlock')
-chat_history = []
+# Grab all of the message containers
+chat_messages = doc.search('div#chats div.hc-chat-row')
 
-chat_history_source.each do |message|
+parsed_chat_messages = []
+
+chat_messages.each do |message|
     message = {
-        :timestamp => message.search('td.messageBlock').search('p.timeBlock').text.strip,
-        :message => message.search('td.messageBlock').search('p.msgText').text.strip,
-        :name => message.search('td.nameBlock').text.strip
+        :timestamp => message.search('div.hc-chat-time').text.strip,
+        :message => message.search('div.hc-chat-msg').text.strip,
+        :name => message.search('div.hc-chat-from').text.strip
     }
-    chat_history << message
+    parsed_chat_messages << message
 end
 
-chat_history.each do |message|
+parsed_chat_messages.each do |message|
     puts "#{message[:timestamp]} #{message[:name]} -- #{message[:message]}"
 end
