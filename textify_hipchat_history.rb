@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
-require 'nokogiri'
+begin
+  require 'nokogiri'
+rescue LoadError => e
+  abort "Oh crap. You are missing a library…\n #{e}"
+end
 
 # Using HipChat's web interface, save the chat history as a web page (not
 # an all-in-one file, but images and such go into a subdir). Run this
