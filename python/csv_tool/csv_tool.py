@@ -6,13 +6,16 @@ import csv
 
 
 def normalize_filepath(filepath):
+    """Expand variables and ~-paths to ensure the `filepath` will work with open."""
     return os.path.abspath(os.path.expandvars(os.path.expanduser(filepath)))
 
 def get_first_line(filepath):
+    """Read and return the first line of the file at `filepath`."""
     with open(normalize_filepath(filepath)) as f:
         return f.readline()
 
 def map_character_frequency(s):
+    """Return a dictionary of characters to counts from the provided string."""
     character_frequency = {}
     for c in s:
         character = c.lower()
@@ -22,6 +25,7 @@ def map_character_frequency(s):
     return character_frequency
 
 def discard_letters_and_digits(d):
+    """Return a copy of the provided dictionary with letter and digit keys removed."""
     new_d = {}
     for k, v in d.iteritems():
         if k in string.letters:
@@ -29,7 +33,6 @@ def discard_letters_and_digits(d):
         if k in string.digits:
             continue
         new_d[k] = v
-    # keys_to_keep = itertools.dropwhile(lambda x: x in string.letters or x in string.digits, d.keys())
     return new_d
 
 def invert_dictionary(d):
@@ -41,8 +44,9 @@ def invert_dictionary(d):
         inverted[v].append(k)
     return inverted
 
-def suspects_by_likelyhood(filepath):
-    line = get_first_line(normalize_filepath(filepath))
+def suspects_by_likelyhood(csvfilepath):
+    """Return a list of probable record seperators in order of likelyhood for the file at `csvfilepath`"""
+    line = get_first_line(normalize_filepath(csvfilepath))
     suspects = discard_letters_and_digits(map_character_frequency(line))
     suspects_by_likelyhood = []
     occurence_to_suspects = invert_dictionary(suspects)
@@ -54,6 +58,7 @@ def do_the_thing(filepath):
     print "Suspects in order of likelyhood: %s" % suspects_by_likelyhood(filepath)
 
 def headers_with_sample(filepath, separator):
+    """Display CSV file's headers and data from the first record."""
     with open(normalize_filepath(filepath)) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=separator)
         data = reader.next()
