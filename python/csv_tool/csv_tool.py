@@ -32,14 +32,6 @@ def discard_letters_and_digits(d):
     # keys_to_keep = itertools.dropwhile(lambda x: x in string.letters or x in string.digits, d.keys())
     return new_d
 
-def suspects_by_occurence(d):
-    suspects = {}
-    for character, count in d.iteritems():
-        if count not in suspects:
-            suspects[count] = []
-        suspects[count].append(character)
-    return suspects
-
 def invert_dictionary(d):
     """inverts single level dictionary, making a list of keys for each of the values"""
     inverted = {}
