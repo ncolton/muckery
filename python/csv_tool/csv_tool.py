@@ -60,11 +60,14 @@ def do_the_thing(filepath):
 def headers_with_sample(filepath, separator):
     """Display CSV file's headers and data from the first record."""
     with open(normalize_filepath(filepath)) as csvfile:
-        reader = csv.DictReader(csvfile, delimiter=separator)
+        # Some interesting behavior if `restkey` is not set and the file has
+        # data in more fields than exist headers; you'll get a key with a name
+        # of `None`...
+        reader = csv.DictReader(csvfile, delimiter=separator, restkey='E_OVERFLOW')
         data = reader.next()
 
     max_key_width = max(map(len, data.keys()))
-    max_value_width = 100
+    max_value_width = 100  # TODO: Make this based off the terminal width
     for key in sorted(data.keys()):
         value = data[key]
         if len(value) > max_value_width:
