@@ -3,7 +3,7 @@
 import os.path
 import string
 import csv
-
+import argparse
 
 def normalize_filepath(filepath):
     """Expand variables and ~-paths to ensure the `filepath` will work with open."""
@@ -54,7 +54,7 @@ def suspects_by_likelyhood(csvfilepath):
         suspects_by_likelyhood.extend(occurence_to_suspects[key])
     return suspects_by_likelyhood
 
-def do_the_thing(filepath):
+def display_most_likely_field_separators(filepath):
     print "Suspects in order of likelyhood: %s" % suspects_by_likelyhood(filepath)
 
 def headers_with_sample(filepath, separator):
@@ -64,15 +64,35 @@ def headers_with_sample(filepath, separator):
         # data in more fields than exist headers; you'll get a key with a name
         # of `None`...
         reader = csv.DictReader(csvfile, delimiter=separator, restkey='E_OVERFLOW')
-        data = reader.next()
+        # data = reader.next()
 
+        while True:
+            try:
+                data = reader.next()
+            except StopIteration:
+                break
+
+            print ''
+            display_formatted_record_data(data)
+
+            resp = raw_input('\n[n]ext record, or [q]uit? ')
+            if resp == 'q':
+                break
+
+
+def display_formatted_record_data(data):
     max_key_width = max(map(len, data.keys()))
     max_value_width = 100  # TODO: Make this based off the terminal width
+
+    record_data_format_string = '{key:>{key_width}}   {value:<{value_width}}'
+
+    print record_data_format_string.format(key='Key', value='Data', key_width=max_key_width, value_width=max_value_width)
+
     for key in sorted(data.keys()):
         value = data[key]
         if len(value) > max_value_width:
             value = value[:max_value_width - 1] + '…'
-        print '{key:>{key_width}}   {value:<{value_width}}'.format(key=key, value=value, key_width=max_key_width, value_width=max_value_width)
+        print record_data_format_string.format(key=key, value=value, key_width=max_key_width, value_width=max_value_width)
 
 # Will want to be able to select a field and view the full text of it (especially for URL type things)
 #   Maybe an option to open in default browser?
@@ -111,4 +131,23 @@ def headers_with_sample(filepath, separator):
 # self.header_map['isadult'] = 'adult'
 
 # filename = '~/repositories/1-JCTR_Shoprunner_Product_201602230220.txt'
-filename = '~/repositories/JCTR_Shoprunner_Product_201603010237.txt'
+# filename = '~/repositories/JCTR_Shoprunner_Product_201603010237.txt'
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('filename')
+parser.add_argument('--interactive', '-i', action='store_true', help='open interactive python shell after start')
+args = parser.parse_args()
+
+filename = args.filename
+
+print 'Most likely field separators:'
+separator_suspects = suspects_by_likelyhood(filename)
+for idx, item in enumerate(separator_suspects):
+    print '{idx:>3} {separator:5}'.format(idx=idx, separator=item.encode('string_escape'))
+separator_index = int(raw_input('Select separator # to use: '))
+
+separator = separator_suspects[separator_index]
+print "Using {} as separator.".format(separator.encode('string_escape'))
+
+headers_with_sample(filename, separator)
