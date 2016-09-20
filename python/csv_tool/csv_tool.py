@@ -85,14 +85,17 @@ def display_formatted_record_data(data):
     max_value_width = 100  # TODO: Make this based off the terminal width
 
     record_data_format_string = '{key:>{key_width}}   {value:<{value_width}}'
+    record_data_format_string = '{key:{fill}{key_align}{key_width}}   {value:{fill}{value_align}{value_width}}'
 
-    print record_data_format_string.format(key='Key', value='Data', key_width=max_key_width, value_width=max_value_width)
+    print record_data_format_string.format(key='Key', value='Data', key_width=max_key_width, key_align='^', value_width=max_value_width, value_align='^', fill='')
+    print record_data_format_string.format(key='', value='', key_width=max_key_width, key_align='^', value_width=max_value_width, value_align='^', fill='-')
+
 
     for key in sorted(data.keys()):
         value = data[key]
         if len(value) > max_value_width:
             value = value[:max_value_width - 1] + '…'
-        print record_data_format_string.format(key=key, value=value, key_width=max_key_width, value_width=max_value_width)
+        print record_data_format_string.format(key=key, value=value, key_width=max_key_width, key_align='>', value_width=max_value_width, value_align='<', fill='')
 
 # Will want to be able to select a field and view the full text of it (especially for URL type things)
 #   Maybe an option to open in default browser?
