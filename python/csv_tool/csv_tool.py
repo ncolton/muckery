@@ -154,3 +154,7 @@ separator = separator_suspects[separator_index]
 print "Using {} as separator.".format(separator.encode('string_escape'))
 
 headers_with_sample(filename, separator)
+
+if args.interactive:
+    from IPython import embed
+    embed()
